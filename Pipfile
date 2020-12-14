@@ -14,9 +14,10 @@ pipenv-setup = "*"
 sampleproject = {editable = true, path = "."}
 
 [packages]
+joblib = "*"
 
 [requires]
-python_version = "3.7"
+python_version = "3.9"
 
 [pipenv]
 allow_prereleases = true
