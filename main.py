@@ -1,3 +1,4 @@
+import multiprocessing
 from functools import cache
 from random import randint
 
@@ -43,8 +44,46 @@ def multiprocess_with_cache(inputs):
     return Parallel(n_jobs=-1)(delayed(cached_common_factors)(x, y) for x, y in inputs)
 
 
+@timefunc
+def batch_multiprocess_caches(inputs):
+    len_inputs = len(inputs)
+    n_batches = multiprocessing.cpu_count()
+    batch_size = len_inputs // n_batches
+
+    batches = []
+    for i in range(n_batches):
+        start = batch_size * i
+        end = (i + 1) * batch_size if i != n_batches - 1 else len_inputs
+        batch = inputs[start:end]
+        batches.append(batch)
+
+    return Parallel(n_jobs=-1)(
+        delayed(single_thread_with_cache.__wrapped__)(batch) for batch in batches
+    )
+
+
+@timefunc
+def batch_multiprocess(inputs):
+    len_inputs = len(inputs)
+    n_batches = multiprocessing.cpu_count()
+    batch_size = len_inputs // n_batches
+
+    batches = []
+    for i in range(n_batches):
+        start = batch_size * i
+        end = (i + 1) * batch_size if i != n_batches - 1 else len_inputs
+        batch = inputs[start:end]
+        batches.append(batch)
+
+    return Parallel(n_jobs=-1)(
+        delayed(single_thread.__wrapped__)(batch) for batch in batches
+    )
+
+
 inputs = [(randint(1, 100), randint(1, 100)) for _ in range(10_000)]
 single_thread(inputs)
 single_thread_with_cache(inputs)
 multiprocess(inputs)
 multiprocess_with_cache(inputs)
+batch_multiprocess(inputs)
+batch_multiprocess_caches(inputs)
