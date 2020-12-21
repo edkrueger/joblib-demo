@@ -8,8 +8,8 @@ from random import randint
 
 from joblib import Memory, Parallel, delayed
 
-from mypythonpackage.resc import factors
-from mypythonpackage.timer import timefunc
+from resc.functions import factors
+from resc.timer import timefunc
 
 f = factors
 

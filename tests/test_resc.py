@@ -1,14 +1,16 @@
 """
-Tests resc.py.
+Tests timer.py.
 """
-from mypythonpackage import add, sub
+from resc.timer import timefunc
 
 
-def test_add():
+def test_timefunc_same_results():
     """Tests add."""
-    assert add(1, 1) == 2
+    # pylint: disable=invalid-name
+    def f(x):
+        """Identity function."""
+        return x
 
+    f_timed = timefunc(f)
 
-def test_sub():
-    """Tests sub."""
-    assert sub(1, 1) == 0
+    assert f(3) == f_timed(3)
