@@ -1,11 +1,17 @@
+"""
+Demo a few different approaches to speed up repeated use of a function.
+"""
+
 import multiprocessing
 from functools import cache
 from random import randint
 
 from joblib import Memory, Parallel, delayed
 
-from mypythonpackage.resc import common_factors
+from mypythonpackage.resc import factors
 from mypythonpackage.timer import timefunc
+
+f = factors
 
 
 @timefunc
@@ -13,16 +19,16 @@ def single_thread(inputs):
     """
     Compute single threaded.
     """
-    return [common_factors(x, y) for x, y in inputs]
+    return [f(x) for x in inputs]
 
 
 @timefunc
 def single_thread_with_cache(inputs):
     """
-    Compute single threaded.
+    Compute single threaded with cache.
     """
-    cached_common_factors = cache(common_factors)
-    return [cached_common_factors(x, y) for x, y in inputs]
+    f_memoized = cache(f)
+    return [f_memoized(x) for x in inputs]
 
 
 @timefunc
@@ -30,7 +36,7 @@ def multiprocess(inputs):
     """
     Compute multiprocess.
     """
-    return Parallel(n_jobs=-1)(delayed(common_factors)(x, y) for x, y in inputs)
+    return Parallel(n_jobs=-1)(delayed(f)(x) for x in inputs)
 
 
 @timefunc
@@ -40,30 +46,15 @@ def multiprocess_with_cache(inputs):
     """
     location = "./cachedir"
     memory = Memory(location, verbose=0)
-    cached_common_factors = memory.cache(common_factors)
-    return Parallel(n_jobs=-1)(delayed(cached_common_factors)(x, y) for x, y in inputs)
-
-
-@timefunc
-def batch_multiprocess_caches(inputs):
-    len_inputs = len(inputs)
-    n_batches = multiprocessing.cpu_count()
-    batch_size = len_inputs // n_batches
-
-    batches = []
-    for i in range(n_batches):
-        start = batch_size * i
-        end = (i + 1) * batch_size if i != n_batches - 1 else len_inputs
-        batch = inputs[start:end]
-        batches.append(batch)
-
-    return Parallel(n_jobs=-1)(
-        delayed(single_thread_with_cache.__wrapped__)(batch) for batch in batches
-    )
+    f_memoized = memory.cache(f)
+    return Parallel(n_jobs=-1)(delayed(f_memoized)(x) for x in inputs)
 
 
 @timefunc
 def batch_multiprocess(inputs):
+    """
+    Compute multiprocess with one batch per process.
+    """
     len_inputs = len(inputs)
     n_batches = multiprocessing.cpu_count()
     batch_size = len_inputs // n_batches
@@ -80,10 +71,34 @@ def batch_multiprocess(inputs):
     )
 
 
-inputs = [(randint(1, 100), randint(1, 100)) for _ in range(10_000)]
-single_thread(inputs)
-single_thread_with_cache(inputs)
-multiprocess(inputs)
-multiprocess_with_cache(inputs)
-batch_multiprocess(inputs)
-batch_multiprocess_caches(inputs)
+@timefunc
+def batch_multiprocess_caches(inputs):
+    """
+    Compute multiprocess with one batch and one cache per process.
+    """
+    len_inputs = len(inputs)
+    n_batches = multiprocessing.cpu_count()
+    batch_size = len_inputs // n_batches
+
+    batches = []
+    for i in range(n_batches):
+        start = batch_size * i
+        end = (i + 1) * batch_size if i != n_batches - 1 else len_inputs
+        batch = inputs[start:end]
+        batches.append(batch)
+
+    return Parallel(n_jobs=-1)(
+        delayed(single_thread_with_cache.__wrapped__)(batch) for batch in batches
+    )
+
+
+if __name__ == "__main__":
+
+    demo_inputs = [randint(1, 100) for _ in range(10_000)]
+
+    single_thread(demo_inputs)
+    single_thread_with_cache(demo_inputs)
+    multiprocess(demo_inputs)
+    multiprocess_with_cache(demo_inputs)
+    batch_multiprocess(demo_inputs)
+    batch_multiprocess_caches(demo_inputs)
