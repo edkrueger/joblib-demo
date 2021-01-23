@@ -12,7 +12,8 @@ def timefunc(func):
         """time_wrapper's doc string"""
         start = time.perf_counter()
         result = func(*args, **kwargs)
-        print(f"Function: {func.__name__}, Time: {time.perf_counter() - start}")
+        end = time.perf_counter() - start
+        print(f"Function: {func.__name__}, Time: {end}")
         return result
 
     return time_wrapper
