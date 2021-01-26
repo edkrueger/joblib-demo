@@ -10,8 +10,10 @@ class MemoizedFunction:
         self.func = func
         self.cache = dict()
         self.cache_hits = 0
+        self.n_calls = 0
 
     def __call__(self, *args):
+        self.n_calls += 1
         if not self.cache.get(args):
             self.cache[args] = self.func(*args)
         else:
