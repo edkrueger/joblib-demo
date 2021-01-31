@@ -2,6 +2,8 @@
 
 # pylint: disable=too-few-public-methods
 
+import functools
+
 
 class MemoizedFunction:
     """Takes a function and returns a callable that is a memoized version of that function."""
@@ -19,3 +21,28 @@ class MemoizedFunction:
         else:
             self.cache_hits += 1
         return self.cache[args]
+
+
+def _cache(func):
+    """Decorates a function to implement a memo.
+    A simpler, less optimized version of functools.cache for demonstration."""
+
+    memo = {}
+
+    @functools.wraps(func)
+    def simple_cache_closure(*args, **kwargs):
+
+        # create a key for the memo from args and kwargs
+        key = args
+        if kwargs:
+            # marks the start of the keyword argument in key
+            key += (object(),)
+            for item in kwargs.items():
+                key += item
+
+        if not memo.get(key):
+            memo[key] = func(*args, **kwargs)
+
+        return memo[key]
+
+    return simple_cache_closure
