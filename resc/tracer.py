@@ -23,4 +23,10 @@ if __name__ == "__main__":
         """Recursive Fibo."""
         return num if num <= 1 else fibo(num - 1) + fibo(num - 2)
 
+    @tracefunc
+    def fibo_kwargs(num):
+        """Recursive Fibo."""
+        return num if num <= 1 else fibo_kwargs(num=num - 1) + fibo_kwargs(num=num - 2)
+
     fibo(5)
+    fibo_kwargs(num=5)
