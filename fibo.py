@@ -55,7 +55,7 @@ if __name__ == "__main__":
     timed_cached_fibo_rec = timefunc(cached_fibo_rec)
 
     timed_fibo_iter(20)  # O(n)
-    timed_fibo_rec(20)  # O(n*log(n))
+    timed_fibo_rec(20)  # O(2**n)
     timed_cached_fibo_rec(20)  # O(n)
 
     # why recursive takes longer
