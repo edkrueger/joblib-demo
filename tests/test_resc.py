@@ -2,7 +2,7 @@
 Tests timer.py.
 """
 from resc.timer import timefunc
-from resc.cachetools import MemoizedFunction, _cache
+from resc.cachetools import MemoizedFunction, memoize
 
 
 def test_timefunc_same_results():
@@ -30,10 +30,11 @@ def test_memoized_function_same_results():
 
     f_memoized = MemoizedFunction(f)
     assert f(2) == f_memoized(2)
+    assert f(x=2) == f_memoized(x=2)
 
 
-def test__cache():
-    """Test _cache."""
+def test_memoize():
+    """Test memoize."""
 
     # pylint: disable=invalid-name
 
@@ -41,6 +42,6 @@ def test__cache():
         """Identity function."""
         return x
 
-    f_memoized = _cache(f)
+    f_memoized = memoize(f)
     assert f(2) == f_memoized(2)
     assert f(x=2) == f_memoized(x=2)
