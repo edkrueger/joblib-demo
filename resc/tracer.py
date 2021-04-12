@@ -10,7 +10,7 @@ def tracefunc(func):
     def tracefunc_closure(*args, **kwargs):
         """The closure."""
         result = func(*args, **kwargs)
-        print(f"{func.__name__}(args={args}, kwargs={kwargs}) => {result}")
+        print(f"{func.__name__}(args={args}, kwargs={kwargs}) => result={result}")
         return result
 
     return tracefunc_closure
