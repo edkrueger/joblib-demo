@@ -7,13 +7,15 @@ import functools
 
 def _make_key(args, kwargs):
     """Creates a hashable key. A simplified version of functools._make_key."""
+    
+    marker = object()
 
     # create a key for the memo from args and kwargs
     key = args
 
     if kwargs:
         # marks the start of the keyword arguments in key
-        key += (object(),)
+        key += (marker,)
         for item in kwargs.items():
             key += item
 
